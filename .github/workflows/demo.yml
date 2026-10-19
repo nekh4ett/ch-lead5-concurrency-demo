@@ -1,0 +1,19 @@
+name: demo
+run-name: demo target=${{ inputs.target || 'pointer' }} tag=${{ inputs.tag }} rollback=${{ inputs.rollback }}
+on:
+  push:
+    branches: [main]
+    paths: [trigger.txt]
+  workflow_dispatch:
+    inputs:
+      target: {type: string, required: false, default: ''}
+      tag: {type: string, required: false, default: ''}
+      rollback: {type: boolean, required: false, default: false}
+concurrency:
+  group: backend-production-${{ inputs.target || format('pointer-{0}', github.run_id) }}${{ inputs.rollback && '-rollback' || '' }}
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "group=backend-production-${{ inputs.target || format('pointer-{0}', github.run_id) }}${{ inputs.rollback && '-rollback' || '' }}"; sleep 75
